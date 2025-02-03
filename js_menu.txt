@@ -1,0 +1,155 @@
+$(document).ready(function(){
+    $('#menuList').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": true,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+      "order": [[0, 'desc']]
+    });
+  });
+
+
+  $('#menuList').on('click', '.deleteMenu', function(){
+    let row = $(this).closest('tr');
+    let menuId = row.find("span.menuId").text();
+    console.log(menuId);
+    if (confirm("Are you sure? this cannot be undone")) {
+        $.ajax({
+          type: 'POST',
+          url: 'controller/menu.ctrl.php',
+          data: {"deleteMenu":"deleteMenu", "menuId":menuId},
+          success: function(result){
+            //console.log(result);
+            if (result==0) {
+            window.location.reload();
+            }
+          }
+        });
+     }   
+  });
+
+
+
+  $('#menuList').on('click', '.editMenu', function(){
+    let row =$(this).closest('tr');
+    let menuId = row.find("span.menuId").text();
+    //console.log("userid: " + userid );
+    $.ajax({
+        type: 'POST',
+        url: 'controller/menu.ctrl.php',
+        data: {"editMenu":"editMenu", "menuId":menuId},
+        success: function(data){
+          //console.log(data);
+          let menu = jQuery.parseJSON(data);
+          let mid = menu.menu_id;
+          let menuname = menu.mname;
+          let description = menu.mdesc;
+          let category = menu.mcat;
+          let price = menu.mprice;
+          let  stock = menu.mstock;
+          let  bestseller= menu.isBestSeller;
+            
+          $('#menu_id').val(mid);
+          $('#mname').val(menuname);
+          $('#mdesc').val(description);
+            if (category=="Ulam") {
+                $('#mCategory').val("Ulam"); 
+            } else if(category=="Drinks"){
+               // $('#mCategory').selectedIndex=1; 
+                $('#mCategory').val("Drinks"); 
+            }
+            else if(category=="Dessert"){
+                $('#mCategory').val("Dessert"); 
+                // $('#mCategory').selectedIndex=2; 
+            }
+          $('#mprice').val(price);
+          $('#mstock').val(stock);
+
+            if(bestseller==1){
+                $('#isBestSeller').prop('checked', true);
+            }else if(bestseller==0){
+                $('#isBestSeller').prop('checked', false);
+            }
+          $('#editMenuMdl').modal('show');
+         }
+    });
+
+  });
+
+
+$('#updateMenu').click(function(){
+    let menu_id= $('#menu_id').val();
+    let mMname = $('#mname').val();
+    let mDesc = $('#mdesc').val();
+    let mPrice = $('#mprice').val();
+    let mStock = $('#mstock').val();
+    let mCat = $('#mCategory :selected').text();
+    let mBseller = $('#isBestSeller').is(":checked");
+    let mIsBestSeller;
+        if (mBseller==true) {
+             mIsBestSeller=1;
+          
+        } else {
+             mIsBestSeller=0; 
+           
+        }
+
+    console.log(menu_id+" "+mMname+" "+mDesc+" "+mPrice+" "+mStock+" "+mCat+" "+mIsBestSeller);
+    $.ajax({
+        type: 'POST',
+        url: 'controller/menu.ctrl.php',
+        data: {"updateMenu":"updateMenu", "menuId":menu_id, "mname":mMname, "mdesc":mDesc, "mprice":mPrice, "mstock":mStock, "mcat":mCat, "mbseller":mIsBestSeller},
+        success: function(data){
+            console.log(data);
+            let err = "";
+            if (data==0) {
+                window.location.reload();
+            }
+            else if(data=="empty"){
+                err = "A field should not be empty. Please try again!";
+                $('#errorMsg').text(err);
+                $('#errorBox').removeAttr("style");
+            }
+            else if(data=="menu"){
+                err = "This is already taken. Please try again!";
+                $('#errorMsg').text(err);
+                $('#errorBox').removeAttr("style");
+            }
+        }
+    
+    });
+});
+
+
+$('#submitMenuBtn').click(function() {
+  let stock = $('#mstock').val();
+  let price = $('#mprice').val();
+  console.log("s: " + stock + ", p: " + price);
+
+  // Create a function below for submit button then create a negative checker for price and stocks
+  // first create an empty fields checker
+  // then create a negative checker 
+  // then create an ajax function below to pass all the data from the form, naming it as 'submitMenu' so that there will be no change needed in the controller
+  // get the field's value by it's id value
+});
+
+$('#mprice').on('input', function(){
+  let price = $('#mprice').val();
+  if (price < 0) {
+    toastr.error("Invalid price!");
+  } 
+
+});
+
+
+
+$('#mstock').on('input', function(){
+  let stock = $('#mstock').val();
+  if (stock < 0) {
+    toastr.error("Invalid stock!");
+  } 
+
+});

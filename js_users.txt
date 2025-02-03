@@ -1,0 +1,107 @@
+$(document).ready(function(){
+    $('#userList').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": true,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+      "order": [[0, 'desc']]
+    });
+  });
+
+
+  $('#userList').on('click', '.deleteUser', function(){
+    let row = $(this).closest('tr');
+    let userid = row.find("span.userId").text();
+    //console.log(userid);
+    if (confirm("Are you sure? this cannot be undone")) {
+        $.ajax({
+          type: 'POST',
+          url: 'controller/user.ctrl.php',
+          data: {"deleteUser":"deleteUser", "userId":userid},
+          success: function(result){
+            //console.log(result);
+            if (result==0) {
+            window.location.reload();
+            }
+          }
+        });
+    }   
+  });
+
+
+
+  $('#userList').on('click', '.editUser', function(){
+    let row =$(this).closest('tr');
+    let userid = row.find("span.userId").text();
+    //console.log("userid: " + userid );
+    $.ajax({
+        type: 'POST',
+        url: 'controller/user.ctrl.php',
+        data: {"getUser":"getUser", "userId":userid},
+        success: function(data){
+          //console.log(data);
+          let user = jQuery.parseJSON(data);
+          let uid = user.user_id;
+          let ufname = user.firstname;
+          let usname = user.surname;
+          let uname = user.username;
+          let rname = user.role;
+
+          $('#userId').val(uid);
+          $('#firstname').val(ufname);
+          $('#surname').val(usname);
+          $('#username').val(uname);
+
+            if (rname=="admin") {
+              //document.getElementById("user_role").selectedIndex = 1;
+              $('#user_role').selectedIndex = 1;
+            } else {
+             // document.getElementById("user_role").selectedIndex = 0;
+              $('#user_role').selectedIndex=0;
+            } 
+          $('#editUserMdl').modal('show');
+
+          //console.log(user.firstname);
+          // $('#editUserMdl').modal('show');
+        }
+    });
+
+  });
+
+$('#updateUser').click(function(){
+// console.log("tama");
+    let user_id= $('#userId').val();
+    //console.log(user_id);
+    let uFname = $('#firstname').val();
+    let uSname = $('#surname').val();
+    let uName = $('#username').val();
+    let uRname = $('#user_role :selected').text();
+
+    //console.log(user_id+" "+uFname+" "+uSname+" "+uName+" "+uRname+" ");
+    $.ajax({
+        type: 'POST',
+        url: 'controller/user.ctrl.php',
+        data: {"updateUser":"updateUser", "userId":user_id, "firstname":uFname, "surname":uSname, "username":uName, "role":uRname},
+        success: function(data){
+            //console.log(data);
+            let err = "";
+            if (data==0) {
+                window.location.reload();
+            }
+            else if(data=="empty"){
+                err = "A field should not be empty. Please try again!";
+                $('#errorMsg').text(err);
+                $('#errorBox').removeAttr("style");
+            }
+            else if(data=="username"){
+                err = "This is already taken. Please try again!";
+                $('#errorMsg').text(err);
+                $('#errorBox').removeAttr("style");
+            }
+        }
+    
+    });
+});
