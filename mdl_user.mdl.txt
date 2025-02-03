@@ -1,0 +1,125 @@
+<?php
+// require("dbcon.php");
+declare(strict_types=1);
+
+function checkUserDataIsEmpty(string $firstname, string $surname, string $username, string $password, string $repassword, string $role){
+    if(empty($firstname) || empty($surname) || empty($username) || empty($password) || empty($repassword) || empty($role)){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function checkUpdateUserIsEmpty(string $firstname, string $surname, string $username, string $role){
+    if(empty($firstname) || empty($surname) || empty($username) || empty($role)){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+function checkPasswordMatched(string $password, string $repassword){
+    if ($password===$repassword) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+function checkUserExists(string $username, object $conn){
+    $sql = "SELECT * FROM users_tbl WHERE username=?";    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $stmt->store_result();
+    $rows = $stmt->num_rows;
+    return $rows;
+}
+
+
+function getAllUsers(object $conn){
+    $sql = "SELECT * FROM users_tbl";    
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $result->fetch_assoc();
+    return $result; 
+}
+
+
+function getUserByUsername(string $username, object $conn){
+    $sql = "SELECT * FROM users_tbl WHERE username=?";    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $result->fetch_assoc();
+    return $result; 
+}
+
+function getUsernameById(int $userid, object $conn){
+    $sql = "SELECT username FROM users_tbl WHERE user_id=?";    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $userid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()){
+        return $row["username"];
+    }
+  }
+
+function getUserByUserId(int $userid, object $conn){
+    $sql = "SELECT * FROM users_tbl WHERE user_id=?";    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $userid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $rows = $result->fetch_assoc();
+    return json_encode($rows); //for ajax request, use json_encode
+  }
+
+
+
+
+function setNewUser(string $firstname, string $surname, string $username, string $password, string $role, object $conn){
+    $sql = "INSERT INTO users_tbl(firstname, surname, username, password, role) VALUES (?, ?, ?, ?, ?)";   
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssss", $firstname, $surname, $username, $password, $role);
+    $errorCode = $stmt->errno;
+    if($errorCode == 0){
+        $stmt->execute();
+        return $errorCode; // errno is a property that displays int error code for last statement error
+    } else{
+        return $stmt->error; // error is a property that displays string description for last statement error
+    }
+}
+
+function setDeleteUserById(string $userid, object $conn){
+    $sql = "DELETE FROM users_tbl WHERE user_id=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $userid);
+    $errorCode = $stmt->errno;
+    if($errorCode == 0){
+        $stmt->execute();
+        return $errorCode;
+    } else{
+        return $stmt->error; 
+    }
+
+}
+
+function setUpdateUserById(int $userid, string $fname, string $sname, string $username, string $role, object $conn){
+    $sql = "UPDATE users_tbl SET firstname=?, surname=?, username=?, role=? WHERE user_id=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssssi", $fname, $sname, $username, $role, $userid);
+    $errorCode = $stmt->errno;
+    if($errorCode == 0){
+        $stmt->execute();
+        return $errorCode; 
+    } else{
+        return $stmt->error; 
+    }
+}
+

@@ -1,0 +1,151 @@
+<?php
+
+declare(strict_types=1);
+require("../model/dbcon.php");
+require("../model/user.mdl.php");
+
+if ($_SERVER["REQUEST_METHOD"]==="POST") {
+
+    if(isset($_POST["submitLogin"])){
+        $username = htmlentities($_POST["userName"]);
+        $password = htmlentities($_POST["passWord"]); 
+        if (empty($username) || empty($password)) {
+            header("Location: ../../index.php?login=empty");
+            exit();
+        } else {
+            $userXist = checkUserExists($username, $conn); 
+            if ($userXist>=1) {
+                $rows = getUserByUsername($username, $conn);
+
+                foreach ($rows as $row) {
+                    $uFirstname = $row['firstname'];
+                    $uLastname = $row['surname'];
+                    $uRole = $row['role'];
+                    $uPassword = $row['password'];
+                }
+                $pw = password_verify($password, $uPassword);
+                // echo var_dump($pw);
+                if (password_verify($password, $uPassword)) {
+                    session_start();    
+                    $_SESSION["username"] = $username;
+                    $_SESSION["fullname"] = $uFirstname." ".$uLastname;
+                    $_SESSION["role"] = $uRole;
+                    $_SESSION["userLogged"] = true;
+
+                    header("Location: ../home.php");
+                    exit();
+                } else {
+                    header("Location: ../../index.php?login=failed");
+                    exit();
+                }
+            } else {
+                header("Location: ../../index.php?login=failed");
+                exit();
+            }
+                 
+        }
+    }
+    
+    elseif(isset($_POST["submitCreateUser"])) {
+        $firstname = htmlentities($_POST["firstName"]);
+        $lastname = htmlentities($_POST["surName"]);
+        $username = htmlentities($_POST["userName"]);
+        $password = htmlentities($_POST["passWord"]);
+        $repass = htmlentities($_POST["rePass"]);
+        $role = htmlentities($_POST["role"]);
+
+        //echo "$firstname $lastname $username $password $repass $role";
+        //   2. check posted user data if emptys
+        $check= checkUserDataIsEmpty($firstname, $lastname, $username, $password, $repass, $role);
+         if ($check==true) {
+            header("Location: ../user-create.php?error=empty");
+            exit();
+         } else {
+           // 3. check if username to be registered already exists
+                $exists= checkUserExists($username, $conn);
+                if ($exists==1) {
+                    header("Location: ../user-create.php?error=usrx");
+                } else {
+                            // 4. check if retyped passwords matched
+                           $match= checkPasswordMatched($password, $repass);
+                            if ($match==true) {
+                             // 5. hashed password
+                             $opt = [
+                            'cost' => 12, // array int used to slow down the brute force hacking
+                             ];
+                             $hashedPword = password_hash($password, PASSWORD_BCRYPT, $opt);
+                             // 6. redirect if sql error occured
+                             $newuser=setNewUser($firstname, $lastname, $username, $hashedPword, $role, $conn);
+                                 if ($newuser==0) {
+                                    header("Location: ../users.php");
+                                      exit();
+                                } else {
+                                    session_start(); 
+                                     $_SESSION['userCreateError'] = $u; // saving the error message to session variable since we're jumping into another page and we can't pass this directly
+                                     header("Location: ../user-create.php?error=crtx");
+                                }
+                             
+                            } else {
+                                header("Location: ../user-create.php?error=pwdx");
+                            }
+                            
+                }
+         }
+         
+            
+    }
+
+    elseif(isset($_POST["deleteUser"])) {
+        //echo "delete user";
+        $userId = htmlentities($_POST["userId"]);
+        $delete = setDeleteUserById($userId, $conn);
+        echo $delete;
+    }
+
+    elseif(isset($_POST["getUser"])) {
+        $userId = (int)htmlentities($_POST["userId"]);
+        $userData = getUserByUserId($userId, $conn);
+        echo $userData;
+    }
+
+    elseif(isset($_POST["updateUser"])) {
+        $userId = (int)htmlentities($_POST["userId"]);
+        $fname = htmlentities($_POST["firstname"]);
+        $sname = htmlentities($_POST["surname"]);
+        $uname = htmlentities($_POST["username"]);
+        $rname = htmlentities($_POST["role"]);
+        
+        
+        $error="";
+        $check= checkUpdateUserIsEmpty($fname, $sname, $uname, $rname);
+         if ($check==true) {
+          // error  
+         $error="empty";
+          echo $error;
+         } else {
+            $registeredUserName = getUsernameById($userId, $conn);
+            if ($registeredUserName==$uname) {
+                $update = setUpdateUserById($userId, $fname, $sname, $uname, $rname, $conn);
+                echo $update;
+            } else {
+                $uncheck= checkUserExists($uname, $conn);
+                if ($uncheck==1) {
+                //error
+                 $error="username";
+                 echo $error;
+                    
+                }else{
+                  //$update="userssave";
+                    $update = setUpdateUserById($userId, $fname, $sname, $uname, $rname, $conn);
+                    echo $update;
+                    
+                }
+            }
+            
+            
+        }
+        
+    }
+
+
+}

@@ -1,0 +1,62 @@
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <div class="row float-right"> 
+      <a href="" class="brand-link">
+        <i class="fas fa-utensils"></i>
+        <span class="brand-text font-weight-light"> Tita's Eatery POS</span>
+        
+      </a>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar kiosk panel section -->
+      <div class="user-panel mt-2 pb-2 mb-2">
+          <ul class="nav nav-pills nav-sidebar flex-column" data-accordion="false">
+            <li class="nav-item">
+              <a href="../kiosk.php" class="nav-link"><i class="nav-icon fas fa-store"></i><p>Kiosk</p></a>
+            </li>
+          </ul>
+      </div>
+      
+      <!-- Sidebar Menu -->
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="fas fa-users"></i>
+              <p>Users<i class="right fas fa-angle-left"></i></p>
+            </a>
+              <ul class="nav nav-treeview">
+                  <li class="nav-item"><a href="users.php" class="nav-link"><p>List</p></a></li>
+                  <li class="nav-item"><a href="user-create.php" class="nav-link"><p>Create</p></a></li>
+              </ul>
+          </li>
+        
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="fas fa-book-open"></i>
+              <p>Menu<i class="right fas fa-angle-left"></i></p>
+            </a>
+              <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="menus.php" class="nav-link">
+                      <p>List</p>
+                    </a>
+                  </li>
+
+                  <li class="nav-item">
+                    <a href="menu-create.php" class="nav-link"><p>Add New</p>  </a>
+                  </li>
+              </ul>
+          </li>
+        
+        
+        </ul>
+      </nav>
+      <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+  </aside>

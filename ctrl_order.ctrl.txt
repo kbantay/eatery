@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+require("../model/dbcon.php");
+require("../model/order.mdl.php");
+
+if ($_SERVER["REQUEST_METHOD"]==="POST") {
+
+    if(isset($_POST["createNewOrder"])) {
+        $orderStatus = htmlentities($_POST['orderStatus']);
+        $newOrderId = setNewOrder($orderStatus, $conn);
+        echo $newOrderId;
+    }
+
+    if(isset($_POST["newOrderItem"])){
+        $orderId = (int)htmlentities($_POST["orderId"]);
+        $itemName = htmlentities($_POST["itemName"]);
+        $price = (int)htmlentities($_POST["price"]);
+        $quantity = (int)htmlentities($_POST["quantity"]);
+        $subtotal = (int)htmlentities($_POST["subtotal"]);
+        $status = htmlentities($_POST["status"]);
+
+        $newOrderItem = "orderid: $orderId - item: $itemName - price: $price - qty: $quantity - sub: $subtotal - stat: $status";
+        //$newOrderItem = setNewOrderItem($orderId, $itemName, $price, $quantity, $subtotal, $status, $conn);
+        echo $newOrderItem;
+    }
+
+}

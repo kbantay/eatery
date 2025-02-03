@@ -1,0 +1,185 @@
+<?php
+  session_start();
+  if ($_SESSION["userLogged"]==true) {
+    require("view/header.php");
+    require("view/sidenavbar.php");
+    require("view/menu.view.php");
+    require("model/dbcon.php");
+    require("model/menu.mdl.php");
+?>
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Menu's List</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">menu list</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+     <!-- Modal should be here -->
+        <div class="modal fade show" id="editMenuMdl" >
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Edit Menu's Info</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="card-body">
+
+                     <!--error box here-->
+                    <div id="errorBox" class='alert alert-danger alert-dismissible' style="display:none" >
+                      <button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>
+                      <h5><i class='icon fas fa-ban'></i> An error occured!</h5>
+                      <p id="errorMsg"></p>
+                    </div>
+                
+                    <form action="" method="post">
+                      <div class="card-body">
+
+                     <div class="form-group">
+                        <label for="mname">Menu name</label>
+                        <input type="text" name="menu_id" id="menu_id" style="display:none" >
+                        <input type="text" class="form-control" id="mname" name="mname" placeholder="Menu name">
+                       </div>
+                     <div class="form-group">
+                        <label for="mdesc">Description</label>
+                        <input type="text" class="form-control" id="mdesc" name="mdescription" placeholder="Description">
+                      </div>
+                      <div class="form-group">
+                        <label>Category</label>
+                        <select class="form-control" name="mCategory" id="mCategory">
+                          <option value="Ulam">Ulam</option>
+                          <option value="Drinks">Drinks</option>
+                          <option value="Dessert">Dessert</option>
+                        </select>
+                      </div>
+                     <div class="form-group">
+                        <label for="mprice">Price</label>
+                        <input type="number" class="form-control" id="mprice" name="mPrice" placeholder="Price">
+                      </div>
+                      <div class="form-group">
+                        <label for="mstock">Stock</label>
+                        <input type="number" class="form-control" id="mstock" name="mStock" placeholder="Stocks">
+                      </div>
+                      <div class="form-check">
+                          <input class="form-check-input" id="isBestSeller" name="bestseller"  type="checkbox">
+                          <label class="form-check-label">Is Best Seller?</label>
+                        </div>
+                </div>
+                 </form>
+                    
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+              <button type="button" id="updateMenu" class="btn btn-success">Save changes</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+
+        <!-- Main row -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">List of Menu</h3>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                <table id="menuList" class="table table-bordered table-hover">
+                  <thead>
+                  <tr>
+                    <th>Menu_Id</th>
+                    <th>Menu</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stocks</th>
+                    <th>Is Best Seller</th>
+                    <th>Action</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <?php
+                        $rows=getAllMenu($conn);
+                        foreach ($rows as $row) {
+                            echo "<tr><td><span class='menuId'>".$row["menu_id"]."</span></td><td>".$row["mname"]."</td><td>".$row["mdesc"]."</td><td>".$row["mcat"]."</td><td>".$row["mprice"]."</td><td>".$row["mstock"]."</td><td>".$row["isBestSeller"]."</td><td><button type='button' class='btn btn-info btn-xs editMenu'><i class='fas fa-edit'></i></button> <button type='button' class='btn btn-danger btn-xs deleteMenu'><i class='fas fa-trash'></i></button></td></tr>";
+                        }
+                    ?>
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+            <!-- /.card -->
+          </div>
+
+
+
+
+        </div>
+        <!-- /.row (main row) -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+
+
+
+
+
+
+
+
+  </div>
+  <!-- /.content-wrapper -->
+
+<?php require("view/footer.php"); ?>
+    
+  <!-- Page specific script -->
+  <script src="../dist/js/pages/menu.js"> </script>
+    
+<?php
+  } else {
+      header("Location: 404.php");
+      exit();
+  }
+?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

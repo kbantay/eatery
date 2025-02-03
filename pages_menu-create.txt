@@ -1,0 +1,136 @@
+<?php
+  session_start();
+  if ($_SESSION["userLogged"]==true) {
+    require("view/header.php");
+    require("view/sidenavbar.php");
+    require("view/menu.view.php");
+?>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Menu</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">Menu</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+          
+        <!-- Main row -->
+        <div class="row">
+        <section class="col-lg-8">
+            <!-- Custom tabs (Charts with tabs)-->
+          <?php
+            if (isset($_GET["error"])) {
+              if ($_GET["error"]==="empty") {
+                $msg="All fields are required, hence, they cannot be empty. Please try again.";
+              } elseif($_GET["error"]==="usrx") {
+                $msg="Username already taken. Please enter a new one.";
+              } elseif($_GET["error"]==="pwdx") {
+                $msg="Password missmatched. Please try again.";
+              }
+                elseif ($_GET["error"]==="crtx") {
+                  $msg=  $_SESSION['userCreateError'];
+                }
+              echo menuCreateError($msg);
+            }
+          ?>
+            <div class="card card-info">
+              <div class="card-header">
+                <h3 class="card-title">Add new to Menu</h3>
+              </div>
+              <!-- /.card-header -->
+              
+              <form action="controller/menu.ctrl.php" method="post"> <!-- the value of action attribute should be deleted, then pass all the data through ajax -->
+                <div class="card-body">
+
+                    <div class="form-group">
+                        <label for="mname">Menu name</label>
+                        <input type="text" class="form-control" id="mname" name="mname" placeholder="Menu name">
+                    </div>
+                    <div class="form-group">
+                        <label for="mdesc">Description</label>
+                        <input type="text" class="form-control" id="mdesc" name="mdescription" placeholder="Description">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select class="form-control" name="mCategory">
+                          <option value="Ulam">Ulam</option>
+                          <option value="Drinks">Drinks</option>
+                          <option value="Dessert">Dessert</option>
+                        </select>
+                      </div>
+                    <div class="form-group">
+                        <label for="mprice">Price</label>
+                        <input type="number" class="form-control" id="mprice" name="mPrice" placeholder="Price">
+                    </div>
+                    <div class="form-group">
+                        <label for="mstock">Stock</label>
+                        <input type="number" class="form-control" id="mstock" name="mStock" placeholder="Stocks">
+                    </div>
+                    <div class="form-check">
+                          <input class="form-check-input" name="bestseller"  type="checkbox" >
+                          <label class="form-check-label">Is Best Seller?</label>
+                        </div>
+                </div>
+                
+              
+                <div class="card-footer">
+                  <button type="submit" class="btn btn-info" name="submitMenu" id="submitMenuBtn">Submit</button>
+                </div>
+              </form>
+            </div>
+            
+
+
+        </div>
+        <!-- /.row (main row) -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+    
+  </div>
+  <!-- /.content-wrapper -->
+
+<?php
+    require("view/footer.php");
+?>
+    
+    
+<!-- Page specific script -->
+<script src="../dist/js/pages/menu.js"> </script>
+    
+<?php
+  } else {
+    header("Location: 404.php");
+    exit();
+  }
+?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

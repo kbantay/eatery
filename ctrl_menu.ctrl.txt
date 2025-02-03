@@ -1,0 +1,79 @@
+<?php
+
+declare(strict_types=1);
+require("../model/dbcon.php");
+require("../model/menu.mdl.php");
+
+if ($_SERVER["REQUEST_METHOD"]==="POST") {
+
+    if (isset($_POST["submitMenu"])) {
+        $menuname = htmlentities($_POST["mname"]);
+        $mdesc = htmlentities($_POST["mdescription"]);
+        $mcat = htmlentities($_POST["mCategory"]);
+        $mprice = (int)htmlentities($_POST["mPrice"]);
+        $mstock = (int)htmlentities($_POST["mStock"]);
+        
+        // when the javascript/ ajax of menu submit is created, the entire conditional statemnt block below should be changed and the setAddMenu() function will be the one left
+        if (isset($_POST["bestseller"])) {
+            $isBestSeller = 1;
+        } else {
+           $isBestSeller = 0;
+        }
+        $check = checkMenuIsEmpty($menuname, $mdesc, $mcat, $mprice, $mstock);
+        if ($check==true) {
+            header("Location: ../menu-create.php?error=empty");
+            exit();
+        }else {
+                $save = setAddMenu($menuname, $mdesc, $mcat, $mprice, $mstock, $isBestSeller, $conn);
+                if ($save==0) {
+                    header("Location: ../menus.php");
+                    exit(); 
+                } else {
+                  //  mali = error msg
+                }
+        }
+
+    }
+
+    elseif(isset($_POST["getUlam"])) {
+        $category = htmlentities($_POST["getUlam"]);
+        $catdata = array();
+        $cats = getAllMenubyCategory($category, $conn);
+        foreach ($cats as $cat) {
+            $catdata[] = $cat;
+        }
+        print_r(json_encode($catdata));
+    }
+
+    elseif(isset($_POST["deleteMenu"])) {
+        //echo "delete user";
+        $menuId = (int)htmlentities($_POST["menuId"]);
+        $delete = setDeleteMenuById($menuId, $conn);
+        echo $delete;
+    }
+
+    elseif(isset($_POST["editMenu"])) {
+        $menuId = (int)htmlentities($_POST["menuId"]);
+        $edit = getAllMenuById($menuId, $conn);
+        echo $edit;
+    }
+
+    elseif (isset($_POST["updateMenu"])) {
+        $mId= (int)htmlentities($_POST["menuId"]);
+        $mname= htmlentities($_POST["mname"]);
+        $desc= htmlentities($_POST["mdesc"]);
+        $cate= htmlentities($_POST["mcat"]);
+        $price= (int)htmlentities($_POST["mprice"]);
+        $stocks= (int)htmlentities($_POST["mstock"]);
+        $bseller=(int)htmlentities($_POST["mbseller"]);
+        $update = setUpdateMenuById($mId, $mname, $desc, $cate, $price, $stocks, $bseller, $conn);
+        //$update = "ID: $mId, name: $mname , desc: $desc, cat: $cate, price: $price, stocks: $stocks, bs: $bseller";
+        echo $update;
+    }
+
+    elseif(isset($_POST["getMenuCurrentQuantity"])) {
+        $menuName = htmlentities($_POST["menuName"]);
+        $qty = getQtybyMenuname($menuName, $conn);
+        echo $qty;
+    }
+}

@@ -1,0 +1,101 @@
+<?php
+declare(strict_types=1);
+
+function checkMenuIsEmpty(string $menuname, string $mdesc, string $mcat, int $mprice, int $mstock){
+    if(empty($menuname) || empty($mdesc) || empty($mcat) || empty($mprice) || empty($mstock)){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+function negativeChecker(int $mprice,  int $mstock){ 
+    if ($mprice<0 || $mstock<0) {
+       return true;
+    }
+    
+  }
+
+
+function getAllMenu(object $conn){
+    $sql = "SELECT * FROM menus_tbl";    
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $result->fetch_assoc();
+    return $result; 
+}
+
+function getAllMenuById(int $menuid, object $conn){
+    $sql = "SELECT * FROM menus_tbl WHERE menu_id=?";    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $menuid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $rows = $result->fetch_assoc();
+    return json_encode($rows); //for ajax request, use json_encode
+  }
+
+function getAllMenubyCategory(string $cat, object $conn){
+    $sql = "SELECT mname, mprice, img FROM menus_tbl WHERE mcat=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $cat);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $result->fetch_assoc();
+    return $result;
+}
+
+function getQtybyMenuname(string $menuname, object $conn){
+    $sql = "SELECT mstock FROM menus_tbl WHERE mname=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $menuname);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()){
+        return $row["mstock"];
+    }
+}
+
+function setAddMenu(string $menuname, string $mdesc, string $mcat, int $mprice, int $mstock, int $isBestSeller, object $conn){
+    $sql = "INSERT INTO menus_tbl(mname, mdesc, mcat, mprice, mstock, isBestSeller) VALUES (?, ?, ?, ?, ?, ?)";   
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssiii", $menuname, $mdesc, $mcat, $mprice, $mstock, $isBestSeller);
+    $errorCode = $stmt->errno;
+    if($errorCode == 0){
+        $stmt->execute();
+        return $errorCode; 
+    } else{
+        return $stmt->error;
+    }
+}
+
+function setDeleteMenuById(int $menuid, object $conn){
+    $sql = "DELETE FROM menus_tbl WHERE menu_id=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $menuid);
+    $errorCode = $stmt->errno;
+    if($errorCode == 0){
+        $stmt->execute();
+        return $errorCode;
+    } else{
+        return $stmt->error; 
+    }
+
+}
+
+
+function setUpdateMenuById(int $menuid, string $menuname, string $mdesc, string $mcat, int $mprice, int $mstock, int $isBestSeller, object $conn){
+    $sql = "UPDATE menus_tbl SET mname=?, mdesc=?, mcat=?, mprice=?, mstock=?, isBestSeller=? WHERE menu_id=?"; // error = may comma before WHERE
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssiiii", $menuname, $mdesc, $mcat, $mprice, $mstock, $isBestSeller, $menuid);
+    $errorCode = $stmt->errno;
+    if($errorCode == 0){
+        $stmt->execute();
+        return $errorCode; 
+    } else{
+        return $stmt->error; 
+    }
+}
+

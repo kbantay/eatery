@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+function setNewOrder(string $orderstatus, object $conn){
+    $sql = "INSERT INTO order_tbl (orderstatus) VALUES (?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $orderstatus);
+    $errorCode = $stmt->errno;
+    if($errorCode == 0){
+        $stmt->execute();
+        $newOrderId = $stmt->insert_id;
+        return $newOrderId;
+        //return $errorCode; 
+    } else{
+        return $stmt->error;
+    }
+}
+
+function setNewOrderItem(int $orderId, string $itemname, int $price, int $quantity, int $subtotal, string $status, object $conn){
+    $sql = "INSERT INTO orderitems_tbl (order_id, itemname, price, quantity, subtotal, status) VALUES (?, ?, ?, ?, ?, ?)";   
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("isiiis", $orderId, $itemname, $price, $quantity, $subtotal, $status);
+    $errorCode = $stmt->errno;
+    if($errorCode == 0){
+        $stmt->execute();
+        return $errorCode; 
+    } else{
+        return $stmt->error;
+    }
+}
